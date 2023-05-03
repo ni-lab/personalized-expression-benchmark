@@ -159,6 +159,7 @@ def gen_ref_seqs_for_all_genes(consensus_dir: str, genes: List[str], seq_length:
             assert False, f"Invalid strand {strand} for gene {gene}"
         end = start + seq_length
         seq = seq[start:end]
+        assert len(seq) == seq_length, f"Expected sequence length to be {seq_length}, but got {len(seq)}"
         yield dna_1hot(seq, n_uniform=n_uniform)
 
 

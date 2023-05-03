@@ -178,6 +178,8 @@ def gen_sample_seqs_for_gene(fasta_files: List[str], gene: str, seq_length: int,
                 assert False, f"Invalid strand {strand} for gene {gene}"
             end = start + seq_length
             seq = seq[start:end]
+            assert len(seq) == seq_length, f"Expected {seq_length} length sequence, got {len(seq)} for record {id} " \
+                                           f"in gene {gene}"
             yield dna_1hot(seq, n_uniform=True)
 
 
