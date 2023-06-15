@@ -11,7 +11,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-Then, follow the official instructions for installing PyTorch (pytorch <= 1.13) with GPU support from https://pytorch.org/get-started/previous-versions/ for your system.
+Then, follow the official instructions for installing PyTorch (pytorch <= 1.13) with GPU support from the [official PyTorch site](https://pytorch.org/get-started/previous-versions) for your system.
 
 ## Download trained models
 To use the ExPecto model, you will need to download pre-trained model weights for the Beluga model that ExPecto relies on. These weights are publicly available from the [official ExPecto repository](https://github.com/FunctionLab/ExPecto/tree/master), and you can obtain them by running the following command in this directory:
