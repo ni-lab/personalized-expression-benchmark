@@ -1,5 +1,6 @@
 # personalized-expression-benchmark
-Official repository for the paper "Personal transcriptome variation is poorly explained by current genomic deep learning models"
+Official repository for the manuscript   
+"Personal transcriptome variation is poorly explained by current genomic deep learning models"
 
 TODO: insert link later
 
