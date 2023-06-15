@@ -1,4 +1,4 @@
-# Personalized expression benchmark - Basenji2
+# Personalized expression benchmark: Basenji2
 
 ## Installation
 ```
@@ -8,6 +8,14 @@ conda env update --file basenji_environment.yml
 ```
 
 Then, to install tensorflow with GPU support, follow instructions from https://www.tensorflow.org/install/pip for your system.
+
+## Download trained models
+To use the Basenji2 model, you will need to download the trained model weights and parameters. You can do this by running the following commands:
+```
+# TODO: make the script for this
+bash download_model.sh
+```
+which places the model weights and parameters in the `resources` directory.
 
 ## Predicting expression using reference genome
 To make predictions using the reference genome, we ran the `basenji2_predict_ref.py` script with the following options:
