@@ -1,6 +1,4 @@
 # Personalized expression benchmark: ExPecto
-
-# Personalized expression benchmark: Basenji2
 The ExPecto model is described in the following paper: Jian Zhou, Chandra L. Theesfeld, Kevin Yao, Kathleen M. Chen, Aaron K. Wong,  and Olga G. Troyanskaya, [Deep learning sequence-based ab initio prediction of variant effects on expression and disease risk](https://www.nature.com/articles/s41588-018-0160-6), Nature Genetics (2018).
 
 
@@ -16,7 +14,7 @@ pip install -r requirements.txt
 Then, follow the official instructions for installing PyTorch (pytorch <= 1.13) with GPU support from https://pytorch.org/get-started/previous-versions/ for your system.
 
 ## Download trained models
-To download the trained Beluga model weights for use with the ExPecto model, run the following command in this directory:
+To use the ExPecto model, you will need to download pre-trained model weights for the Beluga model that ExPecto relies on. These weights are publicly available from the [official ExPecto repository](https://github.com/FunctionLab/ExPecto/tree/master), and you can obtain them by running the following command in this directory:
 ```
 wget http://deepsea.princeton.edu/media/code/expecto/resources_20190807.tar.gz; tar xf resources_20190807.tar.gz
 ```
