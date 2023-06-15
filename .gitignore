@@ -1,3 +1,8 @@
+consensus/seqs
+.vscode
+test_out_dir
+resources
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

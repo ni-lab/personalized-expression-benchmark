@@ -12,8 +12,6 @@ from typing import Generator, List
 
 import h5py
 import numpy as np
-import pandas as pd
-import tensorflow as tf
 from basenji import seqnn, stream
 from basenji2_utils import *
 from basenji.dna_io import dna_1hot
@@ -23,67 +21,85 @@ from tqdm import tqdm
 
 
 def main():
-    usage = 'usage: %prog [options] <params_file> <model_file> <consensus_dir> <genes_csv>'
+    """
+    Predict expression for all genes and each individual gene using their personalized input sequences.
+
+    Arguments:
+    - params_file: JSON file containing Basenji2 model parameters
+    - model_file: Basenji2 trained model h5
+    - consensus_dir: directory containing consensus and reference sequences for each gene
+    - genes_csv: file containing Ensembl gene IDs, chromosome, TSS position, gene symbol, and strand
+    """
+    usage = "usage: %prog [options] <params_file> <model_file> <consensus_dir> <genes_csv>"
     parser = OptionParser(usage)
-    parser.add_option('-o', dest='out_dir',
-                      default='test_out',
-                      help='Output directory for predictions [Default: %default]')
-    parser.add_option('--rc', dest='rc',
-                      default=False, action='store_true',
-                      help='Average the fwd and rc predictions [Default: %default]')
-    parser.add_option('--shifts', dest='shifts',
-                      default='0',
-                      help='Ensemble prediction shifts [Default: %default]')
-    parser.add_option('-n', dest='n_center',
-                      default=10, type='int',
-                      help='Number of center bins to average predictions around TSS')
-    parser.add_option('--n_uniform', dest='n_uniform', action='store_true', default=False, help='Replace Ns with uniform random [Default: %default]')
-    parser.add_option('--all_bins', dest='all_bins', default=False, action='store_true', help='Save all bins to h5 file')
-    parser.add_option('--num_chunks', dest='num_chunks', default=None, type=int, help="Number of chunks to split computation into")
-    parser.add_option('--chunk_i', dest='chunk_i', default=None, type=int, help="chunk index (0-indexed)")
+    parser.add_option("-o", dest="out_dir",
+                      default=None,
+                      type=str,
+                      help="Output directory for predictions [Default: %default]")
+    parser.add_option("--rc", dest="rc",
+                      default=False,
+                      action="store_true",
+                      help="Average the fwd and rc predictions [Default: %default]")
+    parser.add_option("--shifts", dest="shifts",
+                      default="0",
+                      type=str,
+                      help="Ensemble prediction shifts [Default: %default]")
+    parser.add_option("-n", dest="n_center",
+                      default=10,
+                      type=int,
+                      help="Number of center bins to average predictions around TSS")
+    parser.add_option("--n_uniform", dest="n_uniform",
+                      default=False,
+                      action="store_true",
+                      help="Replace Ns with uniform random [Default: %default]")
+    parser.add_option("--all_bins", dest="all_bins",
+                      default=False,
+                      action="store_true",
+                      help="Save all bins (not just the TSS bin) to h5 file. This will take up a lot of disk space.")
+    parser.add_option("--num_chunks", dest="num_chunks",
+                      default=None,
+                      type=int,
+                      help="Number of chunks to split computation into")
+    parser.add_option("--chunk_i",
+                      dest="chunk_i",
+                      default=None,
+                      type=int,
+                      help="chunk index (0-indexed)")
     (options, args) = parser.parse_args()
 
     num_expected_args = 4
     if len(args) != num_expected_args:
         parser.error(
-            'Incorrect number of arguments, expected {} arguments but got {}'.format(num_expected_args, len(args)))
+            "Incorrect number of arguments, expected {} arguments but got {}".format(num_expected_args, len(args)))
+
+    # Setup
     params_file = args[0]
     model_file = args[1]
     consensus_dir = args[2]
     genes_file = args[3]
 
     os.makedirs(options.out_dir, exist_ok=True)
-
-    # parse shifts to integers
-    options.shifts = [int(shift) for shift in options.shifts.split(',')]
+    options.shifts = [int(shift) for shift in options.shifts.split(",")]
 
     assert options.n_center % 2 == 0, "Number of center bins to average preds around TSS should be even"
 
-    #######################################################
-    # read model parameters
+    # Read model parameters and initialize model
     with open(params_file) as params_open:
         params = json.load(params_open)
-    params_model = params['model']
-    params_train = params['train']
+    params_model = params["model"]
+    params_train = params["train"]
 
-    # initialize model
     seqnn_model = seqnn.SeqNN(params_model)
     seqnn_model.restore(model_file)
     seqnn_model.build_ensemble(options.rc, options.shifts)
 
-    #######################################################
-    # evaluate
-    genes = natsorted([os.path.basename(file) for file in glob.glob(f'{consensus_dir}/*')])
-
-    # read genes_file
-    genes_df = pd.read_csv(genes_file, names=['ens_id', 'chrom', 'bp', 'gene_symbol', 'strand'], index_col=False)
-    genes_df['gene_symbol'] = genes_df['gene_symbol'].fillna(genes_df['ens_id'])
-    genes_df = genes_df.set_index('gene_symbol')
-    genes_df.index = genes_df.index.str.lower()
+    # Read genes file
+    genes = natsorted([os.path.basename(file) for file in glob.glob(f"{consensus_dir}/*")])
+    genes_df = read_genes_file(genes_file)
 
     assert np.all(np.in1d(np.array(genes), genes_df.index)), "Genes in consensus dir not in genes file"
 
-    # Split into chunks if options are set
+    # Split into chunks if options are set for parallelization
     if options.num_chunks is not None:
         gene_splits = np.array_split(genes, options.num_chunks)
         genes = gene_splits[options.chunk_i]
@@ -92,25 +108,29 @@ def main():
     # Predict for all samples
     print("Predicting all samples for all genes...")
     for gene in tqdm(genes):
-        fasta_files = glob.glob(f'{consensus_dir}/{gene}/samples/*.fa')
+        fasta_files = glob.glob(f"{consensus_dir}/{gene}/samples/*.fa")
         preds_stream = stream.PredStreamGen(seqnn_model,
-                                            gen_sample_seqs_for_gene(fasta_files, gene, params_model['seq_length'],
-                                                                     strand=genes_df.loc[gene, 'strand'], n_uniform=options.n_uniform),
-                                            params_train['batch_size'])
+                                            gen_sample_seqs_for_gene(fasta_files,
+                                                                     gene,
+                                                                     params_model["seq_length"],
+                                                                     strand=genes_df.loc[gene, "strand"],
+                                                                     n_uniform=options.n_uniform
+                                                                     ),
+                                            params_train["batch_size"])
 
-        if os.path.exists(f'{options.out_dir}/{gene}/{gene}.h5'):
+        if os.path.exists(f"{options.out_dir}/{gene}/{gene}.h5"):
             print(f"Skipping {gene} since it already exists")
             continue
 
-        preds_dir = f'{options.out_dir}/{gene}'
-        sample_preds_dir = f'{preds_dir}/all_bins_per_sample'
+        preds_dir = f"{options.out_dir}/{gene}"
+        sample_preds_dir = f"{preds_dir}/all_bins_per_sample"
         os.makedirs(sample_preds_dir, exist_ok=True)
 
         fasta_record_ids = []
         center_sample_preds = []
         for si, fasta_file in enumerate(fasta_files):
             # Get predictions on consensus seqs
-            record = list(SeqIO.parse(fasta_file, 'fasta'))[0]
+            record = list(SeqIO.parse(fasta_file, "fasta"))[0]
             fasta_record_ids.append(f"{record.id}|{Path(fasta_file).stem}")
 
             preds = preds_stream[si]
@@ -119,12 +139,14 @@ def main():
             if options.all_bins:
                 # Save to h5
                 with h5py.File(f'{sample_preds_dir}/{Path(fasta_file).stem}.h5', 'w') as preds_h5:
-                    preds_h5.create_dataset('all_preds', data=preds)
+                    preds = np.array(preds).astype(np.float16)
+                    preds_h5.create_dataset('all_preds', data=preds, compression='gzip', compression_opts=9)
 
         # Save to h5
         with h5py.File(f'{preds_dir}/{gene}.h5', 'w') as preds_h5:
-            preds_h5.create_dataset('preds', data=center_sample_preds)
-            preds_h5.create_dataset('record_ids', data=np.array(fasta_record_ids, 'S'))
+            center_sample_preds = np.array(center_sample_preds).astype(np.float16)
+            preds_h5.create_dataset('preds', data=center_sample_preds, compression='gzip', compression_opts=9)
+            preds_h5.create_dataset('record_ids', data=np.array(fasta_record_ids, dtype='S'))
 
 
 def gen_sample_seqs_for_gene(fasta_files: List[str], gene: str, seq_length: int, strand: str, n_uniform: bool = False) -> Generator:
@@ -138,7 +160,7 @@ def gen_sample_seqs_for_gene(fasta_files: List[str], gene: str, seq_length: int,
     n_uniform: whether to replace Ns with 0.25 for uniform background
     """
     for fasta_file in fasta_files:
-        for record in SeqIO.parse(fasta_file, 'fasta'):
+        for record in SeqIO.parse(fasta_file, "fasta"):
             seq = str(record.seq).upper()
 
             # first, deal with truncated sequences due to being at beginning or end of chromosome
@@ -170,9 +192,9 @@ def gen_sample_seqs_for_gene(fasta_files: List[str], gene: str, seq_length: int,
             # for Basenji, the TSS will be centered with less sequence upstream than downstream
             assert len(seq) % 2 == 0, f"Expected even length sequence, got {len(seq)} for record {record.id} in gene {gene}"
             assert seq_length % 2 == 0, f"Expected even length sequence input for model"
-            if strand == '+':
+            if strand == "+":
                 start = len(seq) // 2 - seq_length // 2 + 1
-            elif strand == '-':
+            elif strand == "-":
                 start = len(seq) // 2 - seq_length // 2
             else:
                 assert False, f"Invalid strand {strand} for gene {gene}"
@@ -180,8 +202,8 @@ def gen_sample_seqs_for_gene(fasta_files: List[str], gene: str, seq_length: int,
             seq = seq[start:end]
             assert len(seq) == seq_length, f"Expected {seq_length} length sequence, got {len(seq)} for record {id} " \
                                            f"in gene {gene}"
-            yield dna_1hot(seq, n_uniform=True)
+            yield dna_1hot(seq, n_uniform=n_uniform)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
