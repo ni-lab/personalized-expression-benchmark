@@ -1,7 +1,7 @@
 consensus/seqs
 .vscode
 test_out_dir
-resources
+basenji2/resources/model_human.h5
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
