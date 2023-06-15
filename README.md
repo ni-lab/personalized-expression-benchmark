@@ -1,5 +1,5 @@
 # personalized-expression-benchmark
-Official repository for the manuscript   
+Official repository for the manuscript
 "Personal transcriptome variation is poorly explained by current genomic deep learning models"
 
 TODO: insert link later
@@ -12,3 +12,6 @@ To make predictions on the reference genome and personalized consensus sequences
 ```
 # TODO: make the script for this
 ```
+
+## Evaluating gene expression prediction performance
+Within each directory, we provide instructions for evaluating gene expression prediction performance using the corresponding model. See the README.md file in each directory for more details.

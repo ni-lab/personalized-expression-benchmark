@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+import pandas as pd
 
 
 def encodeSeqs(seqs, inputsize=2000):
@@ -38,3 +39,11 @@ def encodeSeqs(seqs, inputsize=2000):
     dataflip = seqsnp[:, ::-1, ::-1]
     seqsnp = np.concatenate([seqsnp, dataflip], axis=0)
     return seqsnp
+
+
+def read_genes_file(genes_file: str) -> pd.DataFrame:
+    genes_df = pd.read_csv(genes_file, names=['ens_id', 'chrom', 'bp', 'gene_symbol', 'strand'], index_col=False)
+    genes_df['gene_symbol'] = genes_df['gene_symbol'].fillna(genes_df['ens_id'])
+    genes_df = genes_df.set_index('gene_symbol')
+    genes_df.index = genes_df.index.str.lower()
+    return genes_df

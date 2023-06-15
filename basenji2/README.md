@@ -31,4 +31,4 @@ To make predictions using personalized input sequences, we ran the `basenji2_pre
 python3 basenji2/basenji_predict_consensus.py ./basenji2/resources/params_human.json ./basenji2/resources/model_human.h5 ./consensus/seqs ./data/gene_list.csv --rc --shifts 1,0,-1 -n 10 --n_uniform --all_bins -o ./basenji2/out_dir/predict_consensus
 ```
 
-Note that the `--all_bins` option is used to predict expression for all bins in the input sequences, which will take up a lot of disk space. If you want to save out expression predictions for only the central bin (which contains thet TSS), you can omit this option.
+Note that the `--all_bins` option is used to predict expression for all bins in the input sequences, which will take up ~X TB of disk space. If you want to save out expression predictions for only the central bin (which contains the TSS), you can omit this option.

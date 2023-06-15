@@ -1,0 +1,17 @@
+name: expecto_personalized_exp
+channels:
+  - defaults
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.8
+  - numpy
+  - pandas
+  - biopython
+  - tqdm
+  - xgboost
+  - ca-certificates
+  - openssl
+  - certifi
+  - h5py
+  - natsort
