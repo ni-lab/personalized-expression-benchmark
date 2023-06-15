@@ -4,7 +4,6 @@ The ExPecto model is described in the following paper: Jian Zhou, Chandra L. The
 ## Installation
 To install the dependencies for the ExPecto model, we recommend using conda. To do so, run the following commands in this directory:
 ```
-
 conda create -n expecto_personalized_exp python=3.8
 conda activate expecto_personalized_exp
 conda env update --file expecto_environment.yml
