@@ -1,4 +1,5 @@
 import argparse
+from optparse import OptionParser
 import subprocess
 import re
 import os
@@ -9,18 +10,12 @@ from itertools import product
 
 REF_DIR = "ref"
 INDS = "samples"
-GENE_FILE = "data/gene_list.csv"
-SAMPLE_FILE = "samples.txt"
 SEQUENCE_LENGTH = 393216
 INTERVAL = 114688
 
 
 def get_vcf(chr):
     return f"/clusterfs/nilah/parth/snps_geuv_vcf/GEUVADIS.chr{chr}.cleaned.vcf.gz"
-
-
-def get_ref_fasta(chr):
-    return f"/clusterfs/nilah/fasta/hg19_by_chr/chr{chr}.fa"
 
 
 def get_items(file):
@@ -34,7 +29,7 @@ def get_sample_files(sample, gene_id):
 def get_index_files(sample, gene_id):
     return f"{INDS}/{sample}/{gene_id}.1pIu.fai", f"{INDS}/{sample}/{gene_id}.2pIu.fai"
 
-def generate_ref(gene):
+def generate_ref(ref_fasta_dir, gene):
     # gene format: 'ENSG00000263280,16,2917619,AC003965.1,-'
     gene_id, chr, tss, _, strand = gene.split(",")
     print(f"#### Starting reference fasta for {gene_id} ####")
@@ -42,7 +37,7 @@ def generate_ref(gene):
     with open(out_file, "w") as f:
         start, end = int(tss) - SEQUENCE_LENGTH // 2, int(tss) + SEQUENCE_LENGTH // 2 - 1
 #        start, end = int(tss) - INTERVAL // 2, int(tss) + INTERVAL // 2
-        ref_command = f"samtools faidx {get_ref_fasta(chr)} chr{chr}:{start}-{end} -o {out_file}"
+        ref_command = f"samtools faidx {ref_fasta_dir}/chr{chr}.fa chr{chr}:{start}-{end} -o {out_file}"
         subprocess.run(ref_command, shell=True)
 
 
@@ -66,8 +61,37 @@ def make_dirs(samples):
             os.makedirs(f"{INDS}/{sample}")
 
 if __name__ == "__main__":
-    genes = get_items(GENE_FILE)
-    samples = get_items(SAMPLE_FILE)
+    """
+    Create individual fasta sequences
+
+    Arguments:
+    - vcf_dir: directory containing VCF files 
+    - genes_csv: file containing Ensembl gene IDs, chromosome, TSS position, gene symbol, and strand
+    - sample_file: file containing individuals names
+    """
+    usage = "usage: %prog [options] <vcf_dir> <genes_csv> <sample_file>"
+    parser = OptionParser(usage)
+    parser.add_option("-o", dest="out_dir",
+                      default='preds',
+                      type=str,
+                      help="Output directory for predictions [Default: %default]")
+    (options, args) = parser.parse_args()
+
+    num_expected_args = 3
+    if len(args) != num_expected_args:
+        parser.error(
+            "Incorrect number of arguments, expected {} arguments but got {}".format(num_expected_args, len(args)))
+
+    # Setup
+    ref_fasta_dir = args[0]
+    genes_file = args[1]
+    sample_file = args[2]
+    if not os.path.exists(REF_DIR):
+        os.makedirs(REF_DIR)
+    genes = get_items(genes_file)
+    for gene in genes:
+        generate_ref(ref_fasta_dir, gene)
+    samples = get_items(sample_file)
     #make sample directories
     make_dirs(samples)
     pool = mp.Pool(processes=mp.cpu_count())
