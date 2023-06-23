@@ -10,12 +10,13 @@ from itertools import product
 
 REF_DIR = "ref"
 INDS = "samples"
+vcf_dir = "data/vcf_snps_only"
 SEQUENCE_LENGTH = 393216
 INTERVAL = 114688
 
 
 def get_vcf(chr):
-    return f"/clusterfs/nilah/parth/snps_geuv_vcf/GEUVADIS.chr{chr}.cleaned.vcf.gz"
+    return f"{vcf_dir}/GEUVADIS.chr{chr}.cleaned.vcf.gz"
 
 
 def get_items(file):
@@ -65,11 +66,12 @@ if __name__ == "__main__":
     Create individual fasta sequences
 
     Arguments:
+    - ref_fasta_dir: reference fasta directory
     - vcf_dir: directory containing VCF files 
     - genes_csv: file containing Ensembl gene IDs, chromosome, TSS position, gene symbol, and strand
     - sample_file: file containing individuals names
     """
-    usage = "usage: %prog [options] <vcf_dir> <genes_csv> <sample_file>"
+    usage = "usage: %prog [options] <ref_fasta_dir> <vcf_dir> <genes_csv> <sample_file>"
     parser = OptionParser(usage)
     parser.add_option("-o", dest="out_dir",
                       default='preds',
@@ -84,8 +86,10 @@ if __name__ == "__main__":
 
     # Setup
     ref_fasta_dir = args[0]
-    genes_file = args[1]
-    sample_file = args[2]
+    vcf_dir = args[1]
+    genes_file = args[2]
+    sample_file = args[3]
+
     if not os.path.exists(REF_DIR):
         os.makedirs(REF_DIR)
     genes = get_items(genes_file)

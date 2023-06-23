@@ -10,7 +10,7 @@ We evaluated gene expression prediction performance using 4 models: Enformer, Ba
 ## Data
 To make predictions on the reference genome and personalized consensus sequences, you will need to generate the reference and consensus sequences for each gene and place these sequences in the `consensus/seqs` directory. We provide the following script for doing so:
 ```
-# TODO: make the script for this
+python3 consensus/make_consensus_enformer.py data/ref_fasta data/vcf_snps_only data/gene_list.csv consensus/samples.txt
 ```
 
 ## Evaluating gene expression prediction performance
