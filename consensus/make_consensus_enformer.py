@@ -9,7 +9,7 @@ import pyfaidx
 from itertools import product
 
 REF_DIR = "ref"
-INDS = "samples"
+INDS = "consensus/seqs"
 vcf_dir = "data/vcf_snps_only"
 SEQUENCE_LENGTH = 393216
 INTERVAL = 114688
@@ -38,7 +38,7 @@ def generate_ref(ref_fasta_dir, gene):
     with open(out_file, "w") as f:
         start, end = int(tss) - SEQUENCE_LENGTH // 2, int(tss) + SEQUENCE_LENGTH // 2 - 1
 #        start, end = int(tss) - INTERVAL // 2, int(tss) + INTERVAL // 2
-        ref_command = f"samtools faidx {ref_fasta_dir}/chr{chr}.fa chr{chr}:{start}-{end} -o {out_file}"
+        ref_command = f"samtools faidx {ref_fasta_dir} chr{chr}:{start}-{end} -o {out_file}"
         subprocess.run(ref_command, shell=True)
 
 
@@ -92,6 +92,8 @@ if __name__ == "__main__":
 
     if not os.path.exists(REF_DIR):
         os.makedirs(REF_DIR)
+    if not os.path.exists(INDS):
+        os.makedirs(INDS)
     genes = get_items(genes_file)
     for gene in genes:
         generate_ref(ref_fasta_dir, gene)
