@@ -33,7 +33,7 @@ To download individual variant data:
 
 The following script will generate consensus sequences for each individual and gene:
 ```
-python3 consensus/make_consensus_enformer.py data/ref_fasta data/vcf_snps_only data/gene_list.csv consensus/samples.txt
+python3 consensus/make_consensus_enformer.py data/ref_fasta data/variants data/gene_list.csv consensus/samples.txt -o consensus/seq
 ```
 
 ## Evaluating gene expression prediction performance
