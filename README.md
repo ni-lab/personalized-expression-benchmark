@@ -26,10 +26,10 @@ for file in *.fa; do faidx -x $file; done
 rm *random* *hap* *Un* # cleanup unnecessary files
 ```
 
-To download individual variant data, run the following commands:
-```
-#TODO: instructions to download and process Geuvadis data
-```
+To download individual variant data:
+1. Navigate to https://www.ebi.ac.uk/biostudies/arrayexpress/studies/E-GEUV-1
+2. On the right side of the page there should be a blue box titled `Data Files`. Enter `.vcf` in the search bar to find only the vcf files. There should be 23 files total.
+3. Select all files and click `Download 23 files`. Then click `Download` under `Download as a ZIP file`.
 
 The following script will generate consensus sequences for each individual and gene:
 ```
