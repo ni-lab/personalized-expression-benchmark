@@ -1,8 +1,5 @@
 # personalized-expression-benchmark
-Official repository for the manuscript
-"Personal transcriptome variation is poorly explained by current genomic deep learning models"
-
-TODO: insert link later
+Official repository for the manuscript: Connie Huang, Richard Shuai, Parth Baokar, Ryan Chung, Ruchir Rastogi, Pooja Kathail, and Nilah Ioannidis. "[Personal transcriptome variation is poorly explained by current genomic deep learning models](https://www.biorxiv.org/content/10.1101/2023.06.30.547100v1)." *bioRxiv* (2023).
 
 ## Installation
 We evaluated gene expression prediction performance using 4 models: Enformer, Basenji2, ExPecto, and Xpresso. We installed each model in a separate python environment. To find instructions for installing dependencies for each model, see the corresponding README.md file in each model's directory.
