@@ -3,6 +3,7 @@ consensus/seqs
 test_out_dir
 basenji2/resources/model_human.h5
 expecto/resources*
+figures/figs
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
