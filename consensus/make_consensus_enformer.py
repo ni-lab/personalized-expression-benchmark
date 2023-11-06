@@ -79,7 +79,7 @@ if __name__ == "__main__":
                       help="Output directory for predictions [Default: %default]")
     (options, args) = parser.parse_args()
 
-    num_expected_args = 3
+    num_expected_args = 4
     if len(args) != num_expected_args:
         parser.error(
             "Incorrect number of arguments, expected {} arguments but got {}".format(num_expected_args, len(args)))
