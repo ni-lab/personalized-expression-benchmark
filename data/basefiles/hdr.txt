@@ -1,0 +1,25 @@
+##FORMAT=<ID=PP,Number=.,Type=String,Description="Phred-scaled Posterior Genotype Probabilities">
+##FORMAT=<ID=BD,Number=.,Type=String,Description="">
+##contig=<ID=chr20>
+##contig=<ID=chr21>
+##contig=<ID=chr19>
+##contig=<ID=chr20>
+##contig=<ID=chr17>
+##contig=<ID=chr18>
+##contig=<ID=chr15>
+##contig=<ID=chr16>
+##contig=<ID=chr14>
+##contig=<ID=chr13>
+##contig=<ID=chr9>
+##contig=<ID=chr12>
+##contig=<ID=chr10>
+##contig=<ID=chr11>
+##contig=<ID=chr8>
+##contig=<ID=chr7>
+##contig=<ID=chr6>
+##contig=<ID=chr5>
+##contig=<ID=chr3>
+##contig=<ID=chr4>
+##contig=<ID=chr1>
+##contig=<ID=chr2>
+##contig=<ID=chr21>
